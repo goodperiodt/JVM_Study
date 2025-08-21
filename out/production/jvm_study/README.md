@@ -64,9 +64,6 @@ jvm이 버전 정보를 읽어서 실행할 수 있는 파일인지를 파악한
 
 상수풀</br>
 버전 번호 다음은 상수 풀 항목이다.</br>
-클래스 파일(\*.class)안에는 문자열, 클래스 이름, 메서드 이름, 타입 등</br>
-중요한 정보가 모여있는 테이블이 있고, 이를 상수 풀(Constant Pool)이라고 부른다.</br>
-각각의 항목은 번호(인덱스)로 관리되고, 항목 번호는 #8, #12 이렇게 표기된다</br>
 상수 풀에 들어 있는 상수의 수는 고정적이지 않으므로</br>
 상수 풀 항목들에 앞서 항목 개수를 알려주는 u2 타입 데이터가 필요하다(295p)</br>
 상수 풀 항목의 개수를 셀 때, 0이 아닌 1부터 시작하고,</br>
@@ -125,22 +122,10 @@ Classfile /C:/workspace/jvm_study/BytecodeExplorer.class // 클래스 파일 경
    // 클래스의 접근자: 이 클래스(필드, 메서드)에 누가 접근할 수 있는지를 지정하는 키워드 ex. ACC_PUBLIC --> 이 클래스에 모두 접근이 가능하다.
    // 클래스의 특성: 추상 클래스인지(abstract), 상속 불가 클래스인지(final), 인터페이스인지(interface) 등 클래스의 특징을 정보로 나타낸다. ex. ACC_SUPER: 정확하게 부모클래스의 메서드를 호출할 수 있도록 JVM이 처리하라고 알려주는 역할.
    flags: (0x0021) ACC_PUBLIC, ACC_SUPER
-   // 현재 클래스의 이름을 가리키는 인덱스를 나타내는 this_class
-   // 이 인덱스는 상수 풀의 항목 번호를 가리키고,
-   // #8이 의미하는 바는 상수 풀의 항목번호다.
-   // --> 현재 클래스의 이름을 알려면 상수 풀의 항목번호 8을 확인해라
-   this_class: #8
+   this_class: #8                          // BytecodeExplorer
    super_class: #2                         // java/lang/Object
    interfaces: 0, fields: 2, methods: 4, attributes: 3
 
 
 
 ```
-
-- this_class는 현재 클래스의 이름을 가리키는 인덱스를 나타내고,</br>
-  이 인덱스는 constant pool 항목 번호를 의미한다. constant pool 에서 #8을 찾아가니</br>
-  #8은 Class 타입이며, 내부적으로 #10을 참조하고 있었다.</br>
-  #10을 찾아가니 #10 항목은 Utf8타입으로 문자열 BytecodeExplorer을 저장하고 있었다.</br>
-  클래스 이름 자체가 문자열로 저장되고,</br>
-  JVM 클래스 파일에서는 모든 문자열을 Utf8 타입 상수로 저장한다.</br>
-- method가 4개(BytecodeExplorer(), main(String[] args), process(String input), compareCondition(int x) 이 4개를 의미하는 것 같음)
