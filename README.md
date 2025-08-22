@@ -169,3 +169,48 @@ Classfile /C:/workspace/jvm_study/BytecodeExplorer.class // 클래스 파일 경
   자바 언어의 메서드 시그니처(메서드이름+메서드의 매개변수 목록(타입, 개수, 순서))에는 반환 값이 포함되지 않기 때문에</br>
   반환 값만 다르게 하여 메서드를 오버로딩하는 일은 불가능하다.</br>
   클래스 파일 형식에서의 시그니처의 범위가 훨씬 넓다는 말이 무슨 의미인지???(311p)
+
+속성 테이블(attribute_info)</br>
+메서드, 필드, 클래스 자체 등에 붙는 부가적인 정보를 저장하기 위해 사용된다</br>
+ex. 불변 필드에 ConstantValue 속성이 붙고, 속성의(ConstantValue) 값에 해당 필드의 값이 담긴다.</br>
+
+- Code 속성: 자바 언어로 작성된 소스파일에서(\*.java) 메서드 본문 코드는(메서드 구현부분, {}블록 내부 코드)</br>
+  자바 컴파일러에 의해 최종적으로 바이트코드 명령어로 변환된 후, Code 속성에 저장된다.</br>
+  Code 속성은 메서드 테이블의 속성 컬렉션에 위치하지만, 인터페이스나 추상 클래스의 추상 메서드와 같이</br>
+  구현부분이 없는 메서드의 경우 Code 속성이 없다.</br>
+
+  ex.
+
+```java
+private static final String CONSTANT="Hello";
+private int counter=0;
+
+/*
+  process(String input)의 Code 속성
+
+  Code_attribute{
+    u2 attribute_name_index; // #48 --> Constant Pool의 48번 항목 참조, "Code"라는 문자열을 가리킴.
+    u2 attribute_length;
+    u2 max_stack; // jvm은 stack 기반 가상 머신이다. process() 메서드 실행시 필요한 연산 stack 최대 깊이를 의미
+  }
+
+  stack=3, // process() 메서드 실행시 jvm이 stack 공간을 사용하는 최대 깊이가 3이라는 것
+    0: aload_0 // 로컬 변수 0(this)을 스택에 올린다.
+    1: dup // stack 맨 위 값인 this를 복제
+    2: getfield #7 // stack 위에 있는 this를 pop하고, this가 가리키는 객체의 counter 필드의 값을 stack 에 push한다.
+    5: iconst_1 // ++연산에 사용될 int 타입의 상수 1의 값을 스택에 push 한다.
+    6: iadd // 두 int 를 pop 해서 더한다(0+1) 그리고 그 결과를 stack에 push 한다.
+    7: putfield #7 // stack 에 남아있는 this 객체의 필드 counter에 연산결과인 1을 저장한다.
+    10: aload_1 // 로컬 변수의 1(메서드의 두 번째 인자인 String input)을 stack 에 push한다.
+    11: aload_0 // 로컬 변수의 0(this)을 stack에 push한다.
+    12: getfield #7 // stack 맨 위의 this를 꺼내서 필드의 값(counter)을 얻어 stack 에 push 한다.
+    15: invokedynamic #32, 0 // --> 부트스트랩 메서드 인덱스0 을 참조하여 makeConcatWithConstants 호출?
+    // 그래서 CONSTANT와 매개변수 input의 값이 연결되는듯?
+    ***   #32 = InvokeDynamic      #0:#33         // #0:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+    20: areturn // JVM 바이트 코드 명령중 하나, stack 맨 위의 참조형 값(여기서 input+counter의 결과 값)을 반환하라는 의미
+*/
+public String process(String input) {
+  counter++;
+  return CONSTANT+" "+input+"(count: "+counter+")";
+}
+```
